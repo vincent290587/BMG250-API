@@ -429,7 +429,7 @@ int8_t bmg250_get_regs(uint8_t reg_addr, uint8_t *data, uint16_t len, const stru
 		/* Perform the read operation */
 		rslt = dev->read(dev->dev_id, reg_addr, data, len);
 		/* Delay for proper data read */
-		dev->delay_ms(1);
+		dev->delay_fct(1);
 		if (rslt != BMG250_OK) {
 			/* Failure case */
 			rslt = BMG250_E_COM_FAIL;
@@ -459,7 +459,7 @@ int8_t bmg250_set_regs(uint8_t reg_addr, uint8_t *data, uint16_t len, const stru
 		/* Burst write is allowed only in normal mode */
 		if (dev->power_mode == BMG250_GYRO_NORMAL_MODE) {
 			rslt = dev->write(dev->dev_id, reg_addr, data, len);
-			dev->delay_ms(1);
+			dev->delay_fct(1);
 		} else {
 			/* Burst write is not allowed in
 			suspend & fast-startup mode */
@@ -468,7 +468,7 @@ int8_t bmg250_set_regs(uint8_t reg_addr, uint8_t *data, uint16_t len, const stru
 				reg_addr++;
 				/* Interface Idle time delay
 				for proper write operation */
-				dev->delay_ms(1);
+				dev->delay_fct(1);
 			}
 		}
 
@@ -497,7 +497,7 @@ int8_t bmg250_soft_reset(const struct bmg250_dev *dev)
 	if (rslt == BMG250_OK) {
 		/* Reset the device */
 		rslt = bmg250_set_regs(BMG250_COMMAND_REG_ADDR, &data, 1, dev);
-		dev->delay_ms(BMG250_SOFT_RESET_DELAY_MS);
+		dev->delay_fct(BMG250_SOFT_RESET_DELAY_MS);
 		if ((rslt == BMG250_OK) && (dev->interface == BMG250_SPI_INTF)) {
 			/* Dummy read of 0x7F register to enable SPI Interface
 			if SPI is used */
@@ -954,7 +954,7 @@ int8_t bmg250_perform_self_test(const struct bmg250_dev *dev)
 		rslt = bmg250_set_regs(BMG250_SELF_TEST_ADDR, &self_test_trigger, 1, dev);
 		if (rslt == BMG250_OK) {
 			/* Read the self test status */
-			dev->delay_ms(20);
+			dev->delay_fct(20);
 			rslt = bmg250_get_regs(BMG250_STATUS_ADDR, &self_test_rslt, 1, dev);
 			if (rslt == BMG250_OK) {
 				/* Extract the self test status bit */
@@ -1018,7 +1018,7 @@ int8_t bmg250_set_foc(const struct bmg250_dev *dev)
 			reg_data = BMG250_FOC_ENABLE_CMD;
 			rslt = bmg250_set_regs(BMG250_COMMAND_REG_ADDR, &reg_data, 1, dev);
 			if (rslt == BMG250_OK) {
-				dev->delay_ms(BMG250_FOC_DELAY_MS);
+				dev->delay_fct(BMG250_FOC_DELAY_MS);
 				/* Read the FOC status */
 				rslt = bmg250_get_regs(BMG250_STATUS_ADDR, &reg_data, 1, dev);
 				reg_data = BMG250_GET_BITS(reg_data, BMG250_FOC_READY);
@@ -1118,7 +1118,7 @@ static int8_t null_ptr_check(const struct bmg250_dev *dev)
 {
 	int8_t rslt;
 
-	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL)) {
+	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_fct == NULL)) {
 		rslt = BMG250_E_NULL_PTR;
 	} else {
 		/* Device structure is fine */
@@ -1137,11 +1137,11 @@ static void power_mode_set_delay(const uint8_t *gyro_pmu_status, const struct bm
 	/* startup time delay */
 	if (*gyro_pmu_status == BMG250_PMU_STATUS_SUSPEND) {
 		/* Delay of 81 ms */
-		dev->delay_ms(BMG250_GYRO_DELAY_MS);
+		dev->delay_fct(BMG250_GYRO_DELAY_MS);
 	} else if (*gyro_pmu_status == BMG250_PMU_STATUS_FSU) {
 		/* This delay is required for transition from
 		fast-startup mode to normal mode */
-		dev->delay_ms(BMG250_GYRO_FSU_DELAY_MS);
+		dev->delay_fct(BMG250_GYRO_FSU_DELAY_MS);
 	}
 }
 

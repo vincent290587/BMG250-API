@@ -583,7 +583,7 @@ struct bmg250_dev {
 	/*! Write function pointer */
 	bmg250_com_fptr_t write;
 	/*! Delay function pointer */
-	bmg250_delay_fptr_t delay_ms;
+	bmg250_delay_fptr_t delay_fct;
 	/*! FIFO related configurations */
 	struct bmg250_fifo_frame *fifo;
 	/* Power mode of sensor */
